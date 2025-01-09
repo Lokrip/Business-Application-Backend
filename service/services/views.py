@@ -3,7 +3,6 @@ from django.db.models import (
     Sum,
 )
 from django.core.cache import cache
-from django.shortcuts import render
 from django.conf import settings
 
 from rest_framework.viewsets import ReadOnlyModelViewSet
