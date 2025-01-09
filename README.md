@@ -30,48 +30,33 @@ This is a backend business application designed to manage clients, subscription 
 1. **Clone the repository**:
     ```bash
     git clone <repository-url>
-    cd <project-folder>
     ```
 
-2. **Create and activate a virtual environment** (optional but recommended):
+1. **Build Docker containers**:
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3. **Install the dependencies**:
-    ```bash
-    pip install -r requirements.txt
+    docker-compose up --build
     ```
 
 4. **Set up environment variables**:
-    You may need to configure environment variables for Django settings, Redis, etc. Create a `.env` file and define the necessary variables.
+    You may need to configure environment variables for your Django settings, Redis, and other services.  Create a .env file in the root directory of your project and define the following variables
+    
+    docker-compose.yml
+    ```bash
+    DB_HOST=database-1
+    DB_NAME=dbname
+    DB_USER=dbuser
+    DB_PASS=pass
+    ```
 
 5. **Apply migrations**:
     ```bash
-    python manage.py migrate
+    docker-compose run --rm web-app sh -c "python manage.py migrate"
     ```
 
 6. **Create a superuser** (for accessing the Django admin):
     ```bash
-    python manage.py createsuperuser
-    ```
-
-7. **Start the development server**:
-    ```bash
-    python manage.py runserver
-    ```
-
-### Docker Setup (Optional)
-1. **Build Docker containers**:
-    ```bash
-    docker-compose build
-    ```
-
-2. **Start the containers**:
-    ```bash
-    docker-compose up
+    docker-compose run --rm web-app sh -c "python manage.py createsuperuser"
     ```
 
 3. **Access the application**:
-   Navigate to `http://localhost:8000` for the web application.
+   Navigate to `http://127.0.0.1:8000/` for the web application.
