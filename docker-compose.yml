@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  web-app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./service:/service
+    environment:
+      - DB_HOST=database-1
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+      
+    depends_on:
+      - database-1
+
+  database-1:
+    container_name: database-2
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_new_data:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    #Команда entrypoint: celery задаёт основную команду, которая будет запускаться в контейнере при его старте.
+    #эта команнда позвоялет вызывать дургие команды этому сервису
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./service:/service
+    #В docker-compose, директива links используется для связи контейнеров, чтобы они могли обращаться друг к другу по именам хостов. Когда контейнеры запускаются с использованием docker-compose, links позволяет одному контейнеру подключаться к другому с использованием DNS-имени контейнера, указанного в links. Это было полезно в старых версиях Docker, но в последних версиях рекомендуется использовать сеть (network) вместо links.
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database-1
+    environment:
+      - DB_HOST=database-1
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+
+
+  worker2:
+    build:
+      context: .
+    hostname: worker2
+    #Команда entrypoint: celery задаёт основную команду, которая будет запускаться в контейнере при его старте.
+    #эта команнда позвоялет вызывать дургие команды этому сервису
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./service:/service
+    #В docker-compose, директива links используется для связи контейнеров, чтобы они могли обращаться друг к другу по именам хостов. Когда контейнеры запускаются с использованием docker-compose, links позволяет одному контейнеру подключаться к другому с использованием DNS-имени контейнера, указанного в links. Это было полезно в старых версиях Docker, но в последних версиях рекомендуется использовать сеть (network) вместо links.
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database-1
+    environment:
+      - DB_HOST=database-1
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+
+
+  flower:
+    build:
+      context: .  
+    hostname: flower
+    entrypoint: celery
+    command: -A celery_app.app flower --port=5555
+    volumes:
+      - ./service:/service
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
+
+volumes:
+  postgres_new_data: 
