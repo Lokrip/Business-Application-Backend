@@ -29,7 +29,7 @@ This is a backend business application designed to manage clients, subscription 
 
 1. **Clone the repository**:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/Lokrip/Business-Application-Backend.git
     ```
 
 1. **Build Docker containers**:
